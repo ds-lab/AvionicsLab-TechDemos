@@ -1,7 +1,6 @@
 ###Eclipse###
 
 *.pydevproject
-.metadata
 .gradle
 bin/
 tmp/
