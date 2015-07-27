@@ -5,8 +5,8 @@ public class Problem7 {
     private static final double SEA_MAG_DEV = -16.1;
 
     public static void main(String[] args) {
-        final GeoCoordinate SEA = new GeoCoordinate(47.4353, 122.4750);
-        final GeoCoordinate BTG = new GeoCoordinate(45.7478, 122.5915);
+        final GeoCoordinate SEA = new GeoCoordinate(47.435333, 122.309667);
+        final GeoCoordinate BTG = new GeoCoordinate(45.747833, 122.591500);
 
         final double distanceKm = SEA.distanceTo(BTG);
         final double distanceNm = distanceKm / KM_PER_NM;
