@@ -1,4 +1,9 @@
 ###Eclipse###
+.recommenders
+.metadata
+
+# Allow list of projects to be stored
+!.metadata\.plugins\org.eclipse.core.resources\.projects\
 
 *.pydevproject
 .gradle
