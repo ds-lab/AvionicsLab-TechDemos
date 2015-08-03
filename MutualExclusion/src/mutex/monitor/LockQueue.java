@@ -2,44 +2,61 @@ package mutex.monitor;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class LockQueue<T> implements ThreadSafeBlockingQueue<T> {
-	final Semaphore readSemphore = new Semaphore(0);
-	final Lock lock = new ReentrantLock();
+	final Lock putLock = new ReentrantLock();
+	final Lock takeLock = new ReentrantLock();
+	final Condition notEmpty = takeLock.newCondition();
 	final Queue<T> queue = new LinkedList<T>();
 
 	@Override
 	public void put(T element) {
-		lock.lock();
+		putLock.lock();
 		try {
 			queue.add(element);
-			readSemphore.release();
-		} finally {
-			lock.unlock();
-		}
 
-		// Allows blocked readers to continue
+			takeLock.lock();
+			try {
+				// Allows blocked readers to continue
+				notEmpty.signal();
+			} finally {
+				takeLock.unlock();
+			}
+
+		} finally {
+			putLock.unlock();
+		}
 	}
 
 	@Override
 	public T take() throws InterruptedException {
-		readSemphore.acquire();
-		lock.lockInterruptibly();
+		putLock.lockInterruptibly();
+		takeLock.lockInterruptibly();
+
 		try {
+			// Wait until an element becomes available
+			while (size() == 0) {
+				System.out.println("Waiting until an element becomes available.");
+				notEmpty.await();
+			}
+
 			return queue.remove();
 		} finally {
-			lock.unlock();
+			takeLock.unlock();
+			putLock.unlock();
 		}
 	}
 
 	@Override
 	public int size() {
-		lock.lock();
-		final int size = queue.size();
-		lock.unlock();
-		return size;
+		putLock.lock();
+		try {
+			return queue.size();
+		} finally {
+			putLock.unlock();
+		}
 	}
 }
