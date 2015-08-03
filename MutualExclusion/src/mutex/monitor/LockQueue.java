@@ -7,27 +7,32 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class LockQueue<T> implements ThreadSafeBlockingQueue<T> {
-	final Semaphore readSemphore = new Semaphore(0); 
+	final Semaphore readSemphore = new Semaphore(0);
 	final Lock lock = new ReentrantLock();
 	final Queue<T> queue = new LinkedList<T>();
 
 	@Override
 	public void put(T element) {
 		lock.lock();
-		queue.add(element);
-		lock.unlock();
-		
+		try {
+			queue.add(element);
+			readSemphore.release();
+		} finally {
+			lock.unlock();
+		}
+
 		// Allows blocked readers to continue
-		readSemphore.release();
 	}
 
 	@Override
 	public T take() throws InterruptedException {
 		readSemphore.acquire();
 		lock.lockInterruptibly();
-		final T result = queue.remove();
-		lock.unlock();
-		return result;
+		try {
+			return queue.remove();
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Override
