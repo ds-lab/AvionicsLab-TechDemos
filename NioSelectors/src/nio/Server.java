@@ -8,10 +8,11 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.Iterator;
+import java.util.Set;
 
 public class Server {
 	public static void main(String[] args) throws IOException, InterruptedException {
-		final Server server = new Server();
 		System.out.println("Waiting for connections...");
 
 		// Initialize the selector
@@ -28,17 +29,16 @@ public class Server {
 		socketChannel.register(selector, ops);
 
 		while (true) {
-			// Block, until at least one channel is ready
-			final int numKeys = selector.select();
+			// Block until at least one channel is ready
+			selector.select();
+			final Set<SelectionKey> keySet = selector.selectedKeys();
+			final Iterator<SelectionKey> it = keySet.iterator();
 
-			for (SelectionKey key : selector.selectedKeys()) {
+			while (it.hasNext()) {
+				final SelectionKey key = it.next();
 				if (key.isAcceptable()) {
 					// Accept incoming connections from clients
 					final SocketChannel client = socketChannel.accept();
-					if (client == null) {
-						continue;
-					}
-
 					System.out.println("Got connection from: " + client);
 
 					// Add the client socket to the selector for reading
@@ -62,6 +62,7 @@ public class Server {
 
 					System.out.println(client + " says: " + data);
 				}
+				it.remove();
 			}
 		}
 	}
