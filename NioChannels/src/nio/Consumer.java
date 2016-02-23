@@ -5,7 +5,6 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ClosedByInterruptException;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 /**
  * A simple consumer that reads a UTF8-encoded message from a channel and prints
@@ -23,7 +22,7 @@ public class Consumer implements Runnable {
     @Override
     public void run() {
         // All incoming messages are assumed to be UTF8-encoded
-        final Charset utf8 = StandardCharsets.UTF_8;
+        final Charset utf8 = Charset.forName("UTF-8");
 
         try {
             while (!Thread.interrupted()) {

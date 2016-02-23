@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.WritableByteChannel;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 
 /**
  * A simple producer that sends a UTF8-encoded message over a channel until
@@ -29,7 +28,7 @@ public class Producer implements Runnable {
     @Override
     public void run() {
         // All outgoing data will be encoded as UTF8
-        final Charset cs = StandardCharsets.UTF_8;
+        final Charset cs = Charset.forName("UTF-8");
         int counter = 0;
 
         try {
