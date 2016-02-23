@@ -50,18 +50,24 @@ public class Server {
 
 					// Read data from the socket and convert to UTF-8 string
 					final ByteBuffer buffer = ByteBuffer.allocate(1024);
-					client.read(buffer);
-					buffer.rewind();
-
-					final String data = StandardCharsets.UTF_8.decode(buffer).toString().trim();
-
-					if ("END".equals(data)) {
-						System.out.println("Closing connection to " + client);
+					final int bytesRead = client.read(buffer);
+					if (bytesRead < 0) {
+						System.out.println("Disconnect by " + client);
 						client.close();
-					}
+					} else {
+						buffer.rewind();
 
-					System.out.println(client + " says: " + data);
+						final String data = StandardCharsets.UTF_8.decode(buffer).toString().trim();
+
+						if ("END".equals(data)) {
+							System.out.println("Closing connection to " + client);
+							client.close();
+						}
+
+						System.out.println(client + " says: " + data);
+					}
 				}
+
 				it.remove();
 			}
 		}

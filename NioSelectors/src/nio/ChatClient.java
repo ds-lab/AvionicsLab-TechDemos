@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class ChatClient {
@@ -15,8 +16,8 @@ public class ChatClient {
 		client.configureBlocking(false);
 
 		// Scanner is be used to read from the console
-		// Note: try-with-resources block avoids resource leak
-		try (final Scanner scanner = new Scanner(System.in)) {
+		final Scanner scanner = new Scanner(System.in);
+		try {
 			System.out.println("Enter messages to send to the server (disconnect with END).");
 			while (client.isConnected()) {
 				System.out.print(">> ");
@@ -30,6 +31,11 @@ public class ChatClient {
 					client.write(buffer);
 				}
 			}
+		} catch (NoSuchElementException ex) {
+			// Ignored
+		} finally {
+			client.close();
+			scanner.close();
 		}
 	}
 }
